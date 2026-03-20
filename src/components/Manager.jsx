@@ -3,7 +3,6 @@ import { useRef, useState, useEffect } from "react";
 
 const Manager = () => {
     const eye_ref = useRef()
-    const passwordRef = useRef()
     const [form, setForm] = useState({ site: "", username: "", password: "" })
     const [passwordArray, setpasswordArray] = useState([])
     const [togglePassword, settogglePassword] = useState(false)
@@ -14,6 +13,10 @@ const Manager = () => {
             setpasswordArray(JSON.parse(passwords))
         }
     }, [])
+
+    const copyText = (text) => {
+        navigator.clipboard.writeText(text)
+    }
 
     const showPassword = () => {
         if (eye_ref.current.src.includes("icons/eye_cross.png")) {
@@ -88,10 +91,43 @@ const Manager = () => {
                             <tbody className="bg-green-200">
                                 {passwordArray.map((val, ind) => {
                                     return (
-                                        <tr>
-                                            <td className="border border-white text-center p-2"><a href={val.site} target="_blank">{val.site}</a></td>
-                                            <td className="border border-white text-center p-2">{val.username}</td>
-                                            <td className="border border-white text-center p-2">{val.password}</td>
+                                        <tr key={ind}>
+                                            <td className="border border-white text-center p-2">
+                                                <div className="flex justify-center items-center gap-2">
+                                                    <a href={val.site} target="_blank">{val.site}</a>
+                                                    <div onClick={()=>{copyText(val.site)}}>
+                                                        <lord-icon
+                                                            src="https://cdn.lordicon.com/jectmwqf.json"
+                                                            trigger="hover"
+                                                            colors="primary:#121331,secondary:#5c230a">
+                                                        </lord-icon>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="border border-white text-center p-2">
+                                                <div className="flex justify-center items-center gap-2">
+                                                    {val.username}
+                                                    <div onClick={()=>{copyText(val.username)}}>
+                                                        <lord-icon
+                                                            src="https://cdn.lordicon.com/jectmwqf.json"
+                                                            trigger="hover"
+                                                            colors="primary:#121331,secondary:#5c230a">
+                                                        </lord-icon>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="border border-white text-center p-2">
+                                                <div className="flex justify-center items-center gap-2">
+                                                    {val.password}
+                                                    <div onClick={()=>{copyText(val.password)}}>
+                                                        <lord-icon
+                                                            src="https://cdn.lordicon.com/jectmwqf.json"
+                                                            trigger="hover"
+                                                            colors="primary:#121331,secondary:#5c230a">
+                                                        </lord-icon>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     )
                                 })}
