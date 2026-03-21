@@ -1,5 +1,7 @@
 import React from "react";
 import { useRef, useState, useEffect } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 
 const Manager = () => {
     const eye_ref = useRef()
@@ -16,6 +18,16 @@ const Manager = () => {
 
     const copyText = (text) => {
         navigator.clipboard.writeText(text)
+        toast('Copied to clipboard !', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light"
+        });
     }
 
     const showPassword = () => {
@@ -31,9 +43,31 @@ const Manager = () => {
 
     const savePassword = () => {
         console.log(form)
-        setpasswordArray([...passwordArray, form])
-        localStorage.setItem("passwords", JSON.stringify([...passwordArray, form]))
+        if (!form.site || !form.username || !form.password) {
+            toast.error("All fields are required!", {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "light"
+            });
+            return;
+        }
+        const newEntry = { ...form, id: uuidv4() }
+        setpasswordArray([...passwordArray, newEntry])
+        localStorage.setItem("passwords", JSON.stringify([...passwordArray, newEntry]))
         console.log([...passwordArray, form])
+        setForm({ site: "", username: "", password: "" })
+    }
+
+    const editPassword = (id) => {
+        console.log(id)
+        setForm(passwordArray.filter((val) => { return val.id === id })[0])
+        setpasswordArray(passwordArray.filter((val) => { return val.id !== id }))
+    }
+
+    const deletePassword = (id) => {
+        console.log("Deelting ", id)
+        setpasswordArray(passwordArray.filter((val) => { return val.id !== id }))
+        localStorage.setItem("passwords", JSON.stringify(passwordArray.filter((val) => { return val.id !== id })))
     }
 
     const handleChange = (e) => {
@@ -43,9 +77,21 @@ const Manager = () => {
 
     return (
         <>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
             <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-size-[6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
 
-            <div className="mycontainer">
+            <div className="mycontainer min-h-screen">
                 <div className="flex flex-col items-center p-4 gap-4">
 
                     <h1 className="text-4xl text-center font-bold">
@@ -86,6 +132,7 @@ const Manager = () => {
                                     <th className="p-2">Site</th>
                                     <th className="p-2">Username</th>
                                     <th className="p-2">Password</th>
+                                    <th className="p-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-green-200">
@@ -95,7 +142,7 @@ const Manager = () => {
                                             <td className="border border-white text-center p-2">
                                                 <div className="flex justify-center items-center gap-2">
                                                     <a href={val.site} target="_blank">{val.site}</a>
-                                                    <div onClick={()=>{copyText(val.site)}}>
+                                                    <div onClick={() => { copyText(val.site) }} className="cursor-pointer" title="Copy">
                                                         <lord-icon
                                                             src="https://cdn.lordicon.com/jectmwqf.json"
                                                             trigger="hover"
@@ -107,7 +154,7 @@ const Manager = () => {
                                             <td className="border border-white text-center p-2">
                                                 <div className="flex justify-center items-center gap-2">
                                                     {val.username}
-                                                    <div onClick={()=>{copyText(val.username)}}>
+                                                    <div onClick={() => { copyText(val.username) }} className="cursor-pointer" title="Copy">
                                                         <lord-icon
                                                             src="https://cdn.lordicon.com/jectmwqf.json"
                                                             trigger="hover"
@@ -119,13 +166,29 @@ const Manager = () => {
                                             <td className="border border-white text-center p-2">
                                                 <div className="flex justify-center items-center gap-2">
                                                     {val.password}
-                                                    <div onClick={()=>{copyText(val.password)}}>
+                                                    <div onClick={() => { copyText(val.password) }} className="cursor-pointer" title="Copy">
                                                         <lord-icon
                                                             src="https://cdn.lordicon.com/jectmwqf.json"
                                                             trigger="hover"
                                                             colors="primary:#121331,secondary:#5c230a">
                                                         </lord-icon>
                                                     </div>
+                                                </div>
+                                            </td>
+                                            <td className="border border-white text-center p-2">
+                                                <div className="flex justify-around">
+                                                    <span className="cursor-pointer" title="Edit" onClick={() => { editPassword(val.id) }}>
+                                                        <lord-icon
+                                                            src="https://cdn.lordicon.com/exymduqj.json"
+                                                            trigger="hover">
+                                                        </lord-icon>
+                                                    </span>
+                                                    <span className="cursor-pointer" title="Delete" onClick={() => { deletePassword(val.id) }}>
+                                                        <lord-icon
+                                                            src="https://cdn.lordicon.com/jzinekkv.json"
+                                                            trigger="hover">
+                                                        </lord-icon>
+                                                    </span>
                                                 </div>
                                             </td>
                                         </tr>
